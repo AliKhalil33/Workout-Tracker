@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>The Khalil Project</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #ffffff;
+      color: #000000;
+      font-family: "Times New Roman", serif;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top) 18px env(safe-area-inset-bottom) 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 460px;
+      padding-bottom: 60px;
+    }
+
+    .title {
+      text-align: center;
+      margin-top: 24px;
+      margin-bottom: 36px;
+    }
+
+    .title h1 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    .title p {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.6;
+    }
+
+    .screen {
+      display: none;
+      animation: fade 0.2s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .split-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid #d9d9d9;
+      border-radius: 26px;
+      padding: 24px;
+      background: #fff;
+      transition: 0.15s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    .card:active {
+      transform: scale(0.985);
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      opacity: 0.6;
+      font-size: 0.95rem;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .back-btn,
+    .add-btn,
+    .secondary-btn,
+    .save-btn,
+    .delete-btn {
+      border: none;
+      background: #000;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-family: "Times New Roman", serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .secondary-btn {
+      background: #f3f3f3;
+      color: #000;
+      border: 1px solid #d8d8d8;
+    }
+
+    .delete-btn {
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+    }
+
+    .workout-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .exercise-card {
+      border: 1px solid #e1e1e1;
+      border-radius: 24px;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      cursor: pointer;
+    }
+
+    .exercise-card h3 {
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .exercise-card p {
+      opacity: 0.55;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    .history-card {
+      border: 1px solid #ececec;
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .history-date {
+      font-size: 0.9rem;
+      opacity: 0.5;
+      margin-bottom: 12px;
+    }
+
+    .set-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      color: #000;
+      font-family: "Times New Roman", serif;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      opacity: 0.7;
+      font-size: 0.95rem;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .chart-container {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid #ececec;
+      border-radius: 24px;
+      background: #fff;
+    }
+
+    .empty-state {
+      opacity: 0.5;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 1rem;
+    }
+
+    .small-text {
+      opacity: 0.55;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .divider {
+      height: 1px;
+      background: #efefef;
+      margin: 22px 0;
+    }
+
+    @media (max-width: 420px) {
+      .title h1 {
+        font-size: 1.9rem;
+      }
+
+      .card,
+      .exercise-card,
+      .history-card {
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <div class="title">
+      <h1>The Khalil Project</h1>
+      <p>Workout Progress Tracker</p>
+    </div>
+
+    <div id="homeScreen" class="screen active">
+      <div class="split-grid">
+        <div class="card" onclick="openSplit('Push')">
+          <h2>Push</h2>
+          <p>Chest · Shoulders · Triceps</p>
+        </div>
+
+        <div class="card" onclick="openSplit('Pull')">
+          <h2>Pull</h2>
+          <p>Back · Biceps · Rear Delts</p>
+        </div>
+
+        <div class="card" onclick="openSplit('Legs')">
+          <h2>Legs</h2>
+          <p>Quads · Hamstrings · Calves</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="splitScreen" class="screen">
+      <div class="top-bar">
+        <button class="secondary-btn" onclick="goHome()">Back</button>
+        <button class="add-btn" onclick="showAddWorkout()">Add Workout</button>
+      </div>
+
+      <h2 id="splitTitle" class="section-title"></h2>
+
+      <div id="workoutList" class="workout-list"></div>
+    </div>
+
+    <div id="exerciseScreen" class="screen">
+      <div class="top-bar">
+        <button class="secondary-btn" onclick="backToSplit()">Back</button>
+        <button class="add-btn" onclick="addSetRow()">Add Set</button>
+      </div>
+
+      <h2 id="exerciseTitle" class="section-title"></h2>
+
+      <div class="small-text" id="latestVolume"></div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">New Entry</h3>
+
+      <div id="setContainer"></div>
+
+      <div class="button-row">
+        <button class="save-btn" onclick="saveWorkoutEntry()">Save Entry</button>
+      </div>
+
+      <div class="chart-container">
+        <h3 class="section-title">Progression</h3>
+        <canvas id="progressChart"></canvas>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">History</h3>
+
+      <div id="historyContainer"></div>
+    </div>
+
+    <div id="addWorkoutScreen" class="screen">
+      <div class="top-bar">
+        <button class="secondary-btn" onclick="backToSplit()">Back</button>
+      </div>
+
+      <h2 class="section-title">Add Workout</h2>
+
+      <div class="input-group">
+        <label>Workout Name</label>
+        <input id="newWorkoutName" type="text" placeholder="Bench Press" />
+      </div>
+
+      <div class="button-row">
+        <button class="save-btn" onclick="addWorkout()">Save Workout</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSplit = '';
+    let currentExercise = '';
+    let chartInstance = null;
+
+    const defaultData = {
+      Push: [
+        { name: 'Bench Press', entries: [] },
+        { name: 'Incline Dumbbell Press', entries: [] },
+        { name: 'Shoulder Press', entries: [] }
+      ],
+      Pull: [
+        { name: 'Lat Pulldown', entries: [] },
+        { name: 'Barbell Row', entries: [] },
+        { name: 'Hammer Curl', entries: [] }
+      ],
+      Legs: [
+        { name: 'Leg Press', entries: [] },
+        { name: 'Romanian Deadlift', entries: [] },
+        { name: 'Leg Extension', entries: [] }
+      ]
+    };
+
+    function getData() {
+      const saved = localStorage.getItem('khalilProjectData');
+      if (saved) return JSON.parse(saved);
+
+      localStorage.setItem('khalilProjectData', JSON.stringify(defaultData));
+      return defaultData;
+    }
+
+    function saveData(data) {
+      localStorage.setItem('khalilProjectData', JSON.stringify(data));
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+
+      document.getElementById(id).classList.add('active');
+    }
+
+    function openSplit(split) {
+      currentSplit = split;
+      document.getElementById('splitTitle').textContent = split + ' Workouts';
+      renderWorkoutList();
+      showScreen('splitScreen');
+    }
+
+    function renderWorkoutList() {
+      const data = getData();
+      const container = document.getElementById('workoutList');
+      container.innerHTML = '';
+
+      data[currentSplit].forEach(workout => {
+        const lastEntry = workout.entries[workout.entries.length - 1];
+
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.onclick = () => openExercise(workout.name);
+
+        card.innerHTML = `
+          <h3>${workout.name}</h3>
+          <p>
+            ${lastEntry
+              ? `Last Volume: ${calculateVolume(lastEntry.sets).toLocaleString()}`
+              : 'No entries yet'}
+          </p>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function openExercise(name) {
+      currentExercise = name;
+      document.getElementById('exerciseTitle').textContent = name;
+      document.getElementById('setContainer').innerHTML = '';
+
+      addSetRow();
+      renderHistory();
+      renderChart();
+
+      showScreen('exerciseScreen');
+    }
+
+    function addSetRow() {
+      const row = document.createElement('div');
+      row.className = 'set-row';
+
+      row.innerHTML = `
+        <input type="number" placeholder="Sets" class="sets" />
+        <input type="number" placeholder="Reps" class="reps" />
+        <input type="number" placeholder="Weight" class="weight" />
+      `;
+
+      document.getElementById('setContainer').appendChild(row);
+    }
+
+    function saveWorkoutEntry() {
+      const rows = document.querySelectorAll('.set-row');
+      const sets = [];
+
+      rows.forEach(row => {
+        const setCount = row.querySelector('.sets').value;
+        const reps = row.querySelector('.reps').value;
+        const weight = row.querySelector('.weight').value;
+
+        if (setCount && reps && weight) {
+          sets.push({
+            sets: Number(setCount),
+            reps: Number(reps),
+            weight: Number(weight)
+          });
+        }
+      });
+
+      if (sets.length === 0) return;
+
+      const data = getData();
+      const exercise = data[currentSplit].find(w => w.name === currentExercise);
+
+      exercise.entries.unshift({
+        date: new Date().toLocaleDateString(),
+        timestamp: Date.now(),
+        sets
+      });
+
+      saveData(data);
+
+      document.getElementById('setContainer').innerHTML = '';
+      addSetRow();
+
+      renderHistory();
+      renderChart();
+      renderWorkoutList();
+    }
+
+    function renderHistory() {
+      const data = getData();
+      const exercise = data[currentSplit].find(w => w.name === currentExercise);
+      const container = document.getElementById('historyContainer');
+      const latestText = document.getElementById('latestVolume');
+
+      container.innerHTML = '';
+
+      if (exercise.entries.length === 0) {
+        latestText.textContent = 'No entries yet';
+        container.innerHTML = '<div class="empty-state">No workout history available.</div>';
+        return;
+      }
+
+      const latestVolume = calculateVolume(exercise.entries[0].sets);
+      latestText.textContent = `Latest Volume: ${latestVolume.toLocaleString()}`;
+
+      exercise.entries.forEach(entry => {
+        const volume = calculateVolume(entry.sets);
+
+        const card = document.createElement('div');
+        card.className = 'history-card';
+
+        let setsHtml = '';
+
+        entry.sets.forEach((set, index) => {
+          setsHtml += `
+            <p>
+              Set ${index + 1}: ${set.sets} × ${set.reps} @ ${set.weight} lbs
+            </p>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="history-date">${entry.date}</div>
+          ${setsHtml}
+          <br>
+          <strong>Total Volume: ${volume.toLocaleString()}</strong>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function calculateVolume(sets) {
+      return sets.reduce((total, set) => {
+        return total + (set.sets * set.reps * set.weight);
+      }, 0);
+    }
+
+    function renderChart() {
+      const data = getData();
+      const exercise = data[currentSplit].find(w => w.name === currentExercise);
+      const ctx = document.getElementById('progressChart');
+
+      const entries = [...exercise.entries].reverse();
+
+      const labels = entries.map(entry => entry.date);
+      const volumes = entries.map(entry => calculateVolume(entry.sets));
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            data: volumes,
+            borderColor: '#000000',
+            backgroundColor: 'rgba(0,0,0,0.05)',
+            tension: 0.35,
+            borderWidth: 2,
+            fill: true,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#666',
+                font: {
+                  family: 'Times New Roman'
+                }
+              },
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              ticks: {
+                color: '#666',
+                font: {
+                  family: 'Times New Roman'
+                }
+              },
+              grid: {
+                color: '#efefef'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function showAddWorkout() {
+      document.getElementById('newWorkoutName').value = '';
+      showScreen('addWorkoutScreen');
+    }
+
+    function addWorkout() {
+      const name = document.getElementById('newWorkoutName').value.trim();
+
+      if (!name) return;
+
+      const data = getData();
+
+      data[currentSplit].push({
+        name,
+        entries: []
+      });
+
+      saveData(data);
+      renderWorkoutList();
+      showScreen('splitScreen');
+    }
+
+    function goHome() {
+      showScreen('homeScreen');
+    }
+
+    function backToSplit() {
+      renderWorkoutList();
+      showScreen('splitScreen');
+    }
+  </script>
+</body>
+</html>
